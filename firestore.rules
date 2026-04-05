@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['Student', 'Mentor'];
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && 
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['totalHelpsGiven', 'skills', 'level', 'githubUrl', 'expertise', 'maintainedProject', 'fullName', 'dob', 'institution', 'onboardingCompleted']);
+    }
+    
+    match /hubPosts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.authorID == request.auth.uid;
+      allow update: if isAuthenticated(); // Allow updating 'unanswered' status
+      allow delete: if isAuthenticated() && resource.data.authorID == request.auth.uid;
+      
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && request.resource.data.authorID == request.auth.uid;
+      }
+    }
+    
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admin can write projects (manual for now)
+    }
+  }
+}

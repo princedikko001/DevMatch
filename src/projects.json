@@ -1,0 +1,167 @@
+[
+  {
+    "id": "py-local-1",
+    "name": "NairaRate API",
+    "description": "Scraper for real-time exchange rates. Provides an API for Naira exchange rates against major currencies.",
+    "tags": ["Python", "Web Scraping", "Nigeria"],
+    "difficulty": "Intermediate",
+    "type": "local",
+    "githubUrl": "https://github.com/example/nairarate-api",
+    "stars": 124,
+    "issues": 12
+  },
+  {
+    "id": "py-local-2",
+    "name": "Nigerian Elections Data",
+    "description": "Analysis tools for INEC data. Visualizing and analyzing historical election data for better democratic insights.",
+    "tags": ["Python", "Data Science", "Nigeria"],
+    "difficulty": "Expert",
+    "type": "local",
+    "githubUrl": "https://github.com/example/nigerian-elections-data",
+    "stars": 89,
+    "issues": 5
+  },
+  {
+    "id": "py-local-3",
+    "name": "SMS Health Bot",
+    "description": "Python script for rural health reminders. Helping healthcare providers reach patients in remote areas.",
+    "tags": ["Python", "HealthTech", "Nigeria"],
+    "difficulty": "Intermediate",
+    "type": "local",
+    "githubUrl": "https://github.com/example/sms-health-bot",
+    "stars": 45,
+    "issues": 3
+  },
+  {
+    "id": "py-local-4",
+    "name": "Jumia Scraper",
+    "description": "E-commerce data mining tool for Jumia. Extracting product prices and details for market analysis.",
+    "tags": ["Python", "Web Scraping", "Nigeria"],
+    "difficulty": "Beginner",
+    "type": "local",
+    "githubUrl": "https://github.com/example/jumia-scraper",
+    "stars": 67,
+    "issues": 8
+  },
+  {
+    "id": "py-local-5",
+    "name": "School Portal Automation",
+    "description": "Script for Nigerian university result processing. Automating the extraction and calculation of student grades.",
+    "tags": ["Python", "Automation", "Nigeria"],
+    "difficulty": "Beginner",
+    "type": "local",
+    "githubUrl": "https://github.com/example/school-portal-automation",
+    "stars": 34,
+    "issues": 2
+  },
+  {
+    "id": "web-global-1",
+    "name": "React.js",
+    "description": "The world's most popular frontend library for building user interfaces.",
+    "tags": ["Web Dev", "React", "Global"],
+    "difficulty": "Expert",
+    "type": "global",
+    "githubUrl": "https://github.com/facebook/react",
+    "stars": 215000,
+    "issues": 800
+  },
+  {
+    "id": "web-global-2",
+    "name": "Next.js",
+    "description": "The React Framework for the Web. Full-stack framework for building fast web applications.",
+    "tags": ["Web Dev", "Next.js", "Global"],
+    "difficulty": "Expert",
+    "type": "global",
+    "githubUrl": "https://github.com/vercel/next.js",
+    "stars": 112000,
+    "issues": 1200
+  },
+  {
+    "id": "web-global-3",
+    "name": "Tailwind CSS",
+    "description": "A utility-first CSS framework for rapidly building custom user interfaces.",
+    "tags": ["Web Dev", "CSS", "Global"],
+    "difficulty": "Intermediate",
+    "type": "global",
+    "githubUrl": "https://github.com/tailwindlabs/tailwindcss",
+    "stars": 74000,
+    "issues": 300
+  },
+  {
+    "id": "web-global-4",
+    "name": "Supabase",
+    "description": "The open source Firebase alternative. Build in a weekend, scale to billions.",
+    "tags": ["Web Dev", "Backend", "Global"],
+    "difficulty": "Intermediate",
+    "type": "global",
+    "githubUrl": "https://github.com/supabase/supabase",
+    "stars": 58000,
+    "issues": 450
+  },
+  {
+    "id": "web-global-5",
+    "name": "Vite",
+    "description": "Next generation frontend tooling. It's fast!",
+    "tags": ["Web Dev", "Vite", "Global"],
+    "difficulty": "Intermediate",
+    "type": "global",
+    "githubUrl": "https://github.com/vitejs/vite",
+    "stars": 62000,
+    "issues": 200
+  },
+  {
+    "id": "ml-global-1",
+    "name": "TensorFlow",
+    "description": "An end-to-end open source platform for machine learning.",
+    "tags": ["ML", "Python", "Global"],
+    "difficulty": "Expert",
+    "type": "global",
+    "githubUrl": "https://github.com/tensorflow/tensorflow",
+    "stars": 178000,
+    "issues": 2500
+  },
+  {
+    "id": "ml-global-2",
+    "name": "Scikit-Learn",
+    "description": "Simple and efficient tools for predictive data analysis.",
+    "tags": ["ML", "Python", "Global"],
+    "difficulty": "Intermediate",
+    "type": "global",
+    "githubUrl": "https://github.com/scikit-learn/scikit-learn",
+    "stars": 56000,
+    "issues": 1800
+  },
+  {
+    "id": "ml-global-3",
+    "name": "Hugging Face Transformers",
+    "description": "State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.",
+    "tags": ["ML", "Python", "Global"],
+    "difficulty": "Expert",
+    "type": "global",
+    "githubUrl": "https://github.com/huggingface/transformers",
+    "stars": 115000,
+    "issues": 900
+  },
+  {
+    "id": "ml-global-4",
+    "name": "Keras",
+    "description": "Deep Learning for humans. A high-level neural networks API.",
+    "tags": ["ML", "Python", "Global"],
+    "difficulty": "Intermediate",
+    "type": "global",
+    "githubUrl": "https://github.com/keras-team/keras",
+    "stars": 59000,
+    "issues": 400
+  },
+  {
+    "id": "ml-global-5",
+    "name": "PyTorch",
+    "description": "Tensors and Dynamic neural networks in Python with strong GPU acceleration.",
+    "tags": ["ML", "Python", "Global"],
+    "difficulty": "Expert",
+    "type": "global",
+    "githubUrl": "https://github.com/pytorch/pytorch",
+    "stars": 72000,
+    "issues": 3500
+  }
+]
