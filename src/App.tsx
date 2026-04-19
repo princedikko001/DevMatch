@@ -78,6 +78,7 @@ import { GoogleGenAI } from "@google/genai";
 
 // --- Types ---
 type Role = "Student" | "Mentor";
+type SubscriptionTier = "Free" | "Weekly" | "Monthly" | "Yearly";
 
 interface UserProfile {
   uid: string;
@@ -90,6 +91,10 @@ interface UserProfile {
   selectedSkills?: string[];
   onboardingCompleted: boolean;
   totalHelpsGiven?: number;
+  subscription: SubscriptionTier;
+  downloadCount: number;
+  maxDownloads: number;
+  subscriptionExpiry?: string;
 }
 
 // --- Collaboration Hub Component ---
@@ -865,7 +870,10 @@ const AuthPage = ({ onAuthSuccess, initialIsLogin = true }: { onAuthSuccess: (us
           level,
           role: "Student", // Default role
           onboardingCompleted: false,
-          totalHelpsGiven: 0
+          totalHelpsGiven: 0,
+          subscription: "Free",
+          downloadCount: 0,
+          maxDownloads: 3
         };
 
         const newUser = { ...profile, password };
@@ -1053,17 +1061,17 @@ const OnboardingModal = ({ onComplete }: { onComplete: (skills: string[]) => voi
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
   const skills = [
-    { id: "frontend", name: "Frontend Development", icon: Monitor },
-    { id: "backend", name: "Backend Development", icon: Server },
-    { id: "ai", name: "AI and ML", icon: Brain },
-    { id: "data", name: "Data Science and Analytics", icon: BarChart3 },
+    { id: "Python", name: "Python Development", icon: Code2 },
+    { id: "Web Dev", name: "Web Development", icon: Monitor },
+    { id: "ML", name: "Machine Learning", icon: Brain },
+    { id: "UI/UX", name: "UI/UX Design", icon: LayoutDashboard },
+    { id: "Data Analysis", name: "Data Analysis", icon: BarChart3 },
+    { id: "Node.js", name: "Backend (Node.js)", icon: Server },
+    { id: "React", name: "Frontend (React)", icon: Code2 },
   ];
 
   const toggleSkill = (id: string) => {
-    setSelectedSkills(prev => 
-      prev.includes(id) ? prev.filter(s => s !== id) : 
-      prev.length < 2 ? [...prev, id] : prev
-    );
+    setSelectedSkills([id]); // Only allow one skill
   };
 
   return (
@@ -1074,11 +1082,11 @@ const OnboardingModal = ({ onComplete }: { onComplete: (skills: string[]) => voi
         className="bg-[#0A1F44] w-full max-w-2xl rounded-3xl p-8 border border-white/10 shadow-2xl"
       >
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Which skill do you want to explore?</h2>
-          <p className="text-blue-200/60">Select exactly 2 skills to customize your experience.</p>
+          <h2 className="text-3xl font-bold text-white mb-2">Choose Your Primary Skill</h2>
+          <p className="text-blue-200/60">Select the skill you want to master. Your experience will be tailored to this choice.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
           {skills.map((skill) => {
             const Icon = skill.icon;
             const isSelected = selectedSkills.includes(skill.id);
@@ -1086,7 +1094,7 @@ const OnboardingModal = ({ onComplete }: { onComplete: (skills: string[]) => voi
               <button
                 key={skill.id}
                 onClick={() => toggleSkill(skill.id)}
-                className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-4 ${
+                className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-4 relative ${
                   isSelected 
                     ? "bg-blue-600/20 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)]" 
                     : "bg-white/5 border-white/10 hover:border-white/20"
@@ -1109,13 +1117,79 @@ const OnboardingModal = ({ onComplete }: { onComplete: (skills: string[]) => voi
         </div>
 
         <button
-          disabled={selectedSkills.length !== 2}
+          disabled={selectedSkills.length !== 1}
           onClick={() => onComplete(selectedSkills)}
           className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
         >
-          Proceed
+          Get Started
           <ChevronRight className="w-5 h-5" />
         </button>
+      </motion.div>
+    </div>
+  );
+};
+
+const PremiumModal = ({ isOpen, onClose, onUpgrade }: { isOpen: boolean, onClose: () => void, onUpgrade: (tier: SubscriptionTier, price: number, limit: number) => void }) => {
+  if (!isOpen) return null;
+
+  const plans = [
+    { tier: "Weekly" as SubscriptionTier, price: 100, limit: 6, period: "week", description: "Perfect for a quick sprint." },
+    { tier: "Monthly" as SubscriptionTier, price: 3000, limit: 15, period: "month", description: "Best for consistent learners." },
+    { tier: "Yearly" as SubscriptionTier, price: 20000, limit: 120, period: "year", description: "Ultimate value for pros." },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-[#0A1F44] w-full max-w-4xl rounded-[3rem] p-10 border border-white/10 shadow-2xl relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 p-6">
+          <button onClick={onClose} className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all">
+            <X className="w-6 h-6 text-white/60" />
+          </button>
+        </div>
+
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-white mb-4">Upgrade to Premium</h2>
+          <p className="text-blue-200/60 max-w-xl mx-auto">You've reached your free limit. Choose a plan to unlock more project downloads and accelerate your learning.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {plans.map((plan) => (
+            <div key={plan.tier} className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col hover:border-blue-500/50 transition-all group">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">{plan.tier}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">{plan.description}</p>
+              </div>
+              <div className="mb-8">
+                <p className="text-4xl font-bold text-white">₦{plan.price.toLocaleString()}</p>
+                <p className="text-xs text-blue-400 font-bold uppercase tracking-widest mt-1">per {plan.period}</p>
+              </div>
+              <ul className="space-y-4 mb-10 flex-grow">
+                <li className="flex items-center gap-3 text-sm text-gray-300">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  {plan.limit} Project Downloads
+                </li>
+                <li className="flex items-center gap-3 text-sm text-gray-300">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  Priority AI Support
+                </li>
+                <li className="flex items-center gap-3 text-sm text-gray-300">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  Premium Roadmap Steps
+                </li>
+              </ul>
+              <button 
+                onClick={() => onUpgrade(plan.tier, plan.price, plan.limit)}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-600/20 group-hover:scale-105"
+              >
+                Choose {plan.tier}
+              </button>
+            </div>
+          ))}
+        </div>
       </motion.div>
     </div>
   );
@@ -1133,9 +1207,12 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
   const [peerMatch, setPeerMatch] = useState<{ name: string, skill: string, reason: string } | null>(null);
   const [loadingRoadmap, setLoadingRoadmap] = useState(false);
   
+  // Premium State
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  
   // Home Tab State
   const [homeTab, setHomeTab] = useState<"Local" | "Global">("Global");
-  const [skillFilter, setSkillFilter] = useState<string | null>(null);
+  const [skillFilter, setSkillFilter] = useState<string | null>(profile.selectedSkills?.[0] || null);
   
   // Dashboard Tab State
   const [rankingData, setRankingData] = useState<{ recommendation: string, rankedIds: string[] } | null>(null);
@@ -1228,9 +1305,63 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
     }
   };
 
+  const handleUpgrade = (tier: SubscriptionTier, price: number, limit: number) => {
+    const updatedProfile = {
+      ...profile,
+      subscription: tier,
+      maxDownloads: limit,
+      downloadCount: 0, // Reset for new subscription
+      subscriptionExpiry: new Date(Date.now() + (tier === "Weekly" ? 7 : tier === "Monthly" ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString()
+    };
+    onUpdateProfile(updatedProfile);
+    setIsPremiumModalOpen(false);
+    toast.success(`Successfully upgraded to ${tier} plan!`);
+  };
+
+  const downloadProject = async (project: any) => {
+    if (profile.downloadCount >= profile.maxDownloads) {
+      setIsPremiumModalOpen(true);
+      return;
+    }
+
+    try {
+      toast.loading("Preparing download...", { id: "download" });
+      
+      // Construct GitHub ZIP URL
+      // Format: https://github.com/owner/repo/archive/refs/heads/main.zip
+      // We assume the githubUrl is valid and points to a repo
+      const zipUrl = `${project.githubUrl}/archive/refs/heads/main.zip`;
+      
+      // Trigger download
+      const link = document.createElement('a');
+      link.href = zipUrl;
+      link.download = `${project.name}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Update download count
+      const updatedProfile = {
+        ...profile,
+        downloadCount: profile.downloadCount + 1
+      };
+      onUpdateProfile(updatedProfile);
+      
+      toast.success(`Started download for ${project.name}`, { id: "download" });
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to start download. Please try the GitHub link directly.", { id: "download" });
+    }
+  };
+
   const saveProject = async (project: any) => {
     if (savedProjects.some(p => p.id === project.id)) {
       toast.info("Project already in your learning path");
+      return;
+    }
+
+    if (profile.subscription === "Free" && savedProjects.length >= 3) {
+      setIsPremiumModalOpen(true);
       return;
     }
     
@@ -1427,6 +1558,17 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
           </div>
 
           <div className="flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-blue-600/10 border border-blue-500/20 rounded-2xl">
+              <div className="text-right">
+                <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest">Plan</p>
+                <p className="text-sm font-bold text-white">{profile.subscription}</p>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div className="text-left">
+                <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest">Downloads</p>
+                <p className="text-sm font-bold text-white">{profile.downloadCount} / {profile.maxDownloads}</p>
+              </div>
+            </div>
             <div className="relative hidden md:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input 
@@ -1457,11 +1599,17 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
             
             {activeTab === "Home" && (
               <div className="space-y-8">
+                <PremiumModal 
+                  isOpen={isPremiumModalOpen} 
+                  onClose={() => setIsPremiumModalOpen(false)} 
+                  onUpgrade={handleUpgrade}
+                />
+                
                 {/* Discovery Hub Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div>
                     <h3 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">Discovery Hub</h3>
-                    <p className="text-gray-400">Explore open-source projects from Nigeria and around the world.</p>
+                    <p className="text-gray-400">Explore projects tailored to your <span className="text-blue-400 font-bold">{profile.selectedSkills?.[0]}</span> expertise.</p>
                   </div>
                   
                   {/* Glassmorphism Tabs */}
@@ -1587,7 +1735,11 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                   {project.tags.map(t => (
-                                    <span key={t} className="text-[10px] font-bold bg-indigo-500/10 text-indigo-300 px-3 py-1 rounded-lg border border-indigo-500/10">
+                                    <span key={t} className={`text-[10px] font-bold px-3 py-1 rounded-lg border ${
+                                      profile.selectedSkills?.includes(t) 
+                                        ? "bg-blue-500/20 text-blue-300 border-blue-500/30" 
+                                        : "bg-indigo-500/10 text-indigo-300 border-indigo-500/10"
+                                    }`}>
                                       {t}
                                     </span>
                                   ))}
@@ -1595,15 +1747,13 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
                               </div>
 
                               <div className="flex gap-3 mt-auto">
-                                <a 
-                                  href={project.githubUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex-grow py-3.5 bg-white/5 hover:bg-blue-600 text-white font-bold rounded-2xl border border-white/10 hover:border-blue-500 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
+                                <button 
+                                  onClick={() => downloadProject(project)}
+                                  className="flex-grow py-3.5 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white font-bold rounded-2xl border border-emerald-500/20 hover:border-emerald-500 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
                                 >
-                                  <Github className="w-5 h-5" />
-                                  Contribute
-                                </a>
+                                  <Save className="w-5 h-5" />
+                                  Download ZIP
+                                </button>
                                 <button 
                                   onClick={() => saveProject(project)}
                                   className={`p-3.5 rounded-2xl border transition-all duration-300 ${
@@ -1613,7 +1763,7 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
                                   }`}
                                   title="Save to Dashboard"
                                 >
-                                  <Save className="w-5 h-5" />
+                                  <Bookmark className="w-5 h-5" />
                                 </button>
                               </div>
                             </motion.div>
@@ -1697,13 +1847,21 @@ const Dashboard = ({ profile, onLogout, onUpdateProfile }: { profile: UserProfil
                             <Github className="w-4 h-4" />
                             View Repo
                           </a>
-                          <button 
-                            onClick={() => removeProject(project.id)}
-                            className="p-3 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-xl border border-white/10 transition-all"
-                            title="Remove from path"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                                <div className="flex gap-2">
+                                  <button 
+                                    onClick={() => removeProject(project.id)}
+                                    className="p-3 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-xl border border-white/10 transition-all"
+                                    title="Remove from path"
+                                  >
+                                    <Trash2 className="w-5 h-5" />
+                                  </button>
+                                  <button 
+                                    onClick={() => downloadProject(project)}
+                                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2"
+                                  >
+                                    <Save className="w-4 h-4" /> Download ZIP
+                                  </button>
+                                </div>
                         </div>
                       </motion.div>
                     ))}
@@ -1989,10 +2147,13 @@ export default function App() {
   const handleOnboardingComplete = (skills: string[]) => {
     if (!userProfile) return;
     
-    const updatedProfile = {
+    const updatedProfile: UserProfile = {
       ...userProfile,
       selectedSkills: skills,
-      onboardingCompleted: true
+      onboardingCompleted: true,
+      subscription: "Free",
+      downloadCount: 0,
+      maxDownloads: 3
     };
 
     // Update in localStorage
@@ -2005,7 +2166,7 @@ export default function App() {
     localStorage.setItem("devmatch_current_user", JSON.stringify(updatedProfile));
     
     setUserProfile(updatedProfile);
-    toast.success("Welcome to your dashboard!");
+    toast.success(`Welcome to DevMatch! Your experience is now tailored to ${skills[0]}.`);
   };
 
   const handleUpdateProfile = (updated: UserProfile) => {
